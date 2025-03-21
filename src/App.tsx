@@ -119,58 +119,6 @@ function KanbanBoard() {
         },
       ],
     },
-    {
-      id: 'review-2',
-      title: 'Review',
-      tasks: [
-        {
-          id: 'task-8',
-          title: 'Empty task',
-          description: '',
-          dueDate: '',
-          assignee: null,
-          tag: null,
-          date: null,
-        },
-        {
-          id: 'task-9',
-          title: 'Right text for modal',
-          description: '',
-          dueDate: '',
-          assignee: USERS[0],
-          tag: 'Design',
-          date: 'Tomorrow',
-        },
-        {
-          id: 'task-10',
-          title: 'UI-Kit',
-          description: '',
-          dueDate: '',
-          assignee: USERS[1],
-          tag: 'Design',
-          date: 'Today',
-        },
-        {
-          id: 'task-11',
-          title: 'Modal design fix',
-          description: '',
-          dueDate: '',
-          assignee: USERS[2],
-          tag: 'Programming',
-          date: 'Yesterday',
-        },
-        {
-          id: 'task-12',
-          title:
-            'Create and finalize the design of the admin panel and mobile app',
-          description: '',
-          dueDate: '',
-          assignee: USERS[3],
-          tag: 'Programming',
-          date: '12 Feb',
-        },
-      ],
-    },
   ]);
 
   // State for tracking which column is adding a task
