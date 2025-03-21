@@ -2,6 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react';
 import './styles.css'; // For Tailwind CSS
+import {
+  ChevronLeft,
+  LogIn,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Settings,
+} from 'lucide-react';
 
 // Mock data for users
 const USERS = [
@@ -341,23 +349,11 @@ function KanbanBoard() {
       <header className='flex items-center justify-between px-4 py-3 border-b'>
         <div className='flex items-center gap-4'>
           <button className='p-2 rounded-full hover:bg-gray-100'>
-            <svg
-              className='w-5 h-5'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M15 19l-7-7 7-7'
-              />
-            </svg>
+            <ChevronLeft size={24} color='black' />
           </button>
           <div className='flex items-center gap-3'>
             <div className='flex items-center justify-center w-8 h-8 bg-black rounded-lg'>
-              <span style={{ color: 'white' }}>A</span>
+              <span style={{ color: 'white' }}>Z</span>
             </div>
             <div>
               <h1 className='text-base font-semibold'>Zareen</h1>
@@ -367,51 +363,14 @@ function KanbanBoard() {
         </div>
         <div className='flex items-center gap-2'>
           <button className='p-2 rounded-full hover:bg-gray-100'>
-            <svg
-              className='w-5 h-5'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
-              />
-            </svg>
+            <Search size={20} />
           </button>
           <button className='p-2 rounded-full hover:bg-gray-100'>
-            <svg
-              className='w-5 h-5'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-            >
-              <path d='M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8m4-9-4 4 4 4m-4-4h8' />
-            </svg>
+            {/*  login */}
+            <LogIn size={24} />
           </button>
           <button className='p-2 rounded-full hover:bg-gray-100'>
-            <svg
-              className='w-5 h-5'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
-              />
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-              />
-            </svg>
+            <Settings />
           </button>
         </div>
       </header>
@@ -433,34 +392,10 @@ function KanbanBoard() {
                     className='p-1 rounded hover:bg-gray-100'
                     onClick={() => handleAddTask(column.id)}
                   >
-                    <svg
-                      className='w-4 h-4'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                      />
-                    </svg>
+                    <Plus size={16} />
                   </button>
                   <button className='p-1 rounded hover:bg-gray-100'>
-                    <svg
-                      className='w-4 h-4'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
-                      />
-                    </svg>
+                    <MoreHorizontal size={16} />
                   </button>
                 </div>
               </div>
@@ -561,19 +496,7 @@ function KanbanBoard() {
                             )
                           }
                         >
-                          <svg
-                            className='w-4 h-4'
-                            fill='none'
-                            stroke='currentColor'
-                            viewBox='0 0 24 24'
-                          >
-                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              strokeWidth='2'
-                              d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
-                            />
-                          </svg>
+                          <MoreHorizontal size={16} />
                         </button>
 
                         {/* Dropdown menu */}
@@ -643,19 +566,7 @@ function KanbanBoard() {
                     onClick={() => handleAddTask(column.id)}
                     className='w-full flex items-center justify-center text-gray-500 py-2 px-3 hover:bg-gray-100 rounded-md'
                   >
-                    <svg
-                      className='w-4 h-4 mr-2'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                      />
-                    </svg>
+                    <Plus className='w-4 h-4 mr-2' size={16} />
                     Add task
                   </button>
                 ) : (
@@ -665,19 +576,7 @@ function KanbanBoard() {
                       onClick={() => handleAddTask(column.id)}
                       className='w-full flex items-center justify-center text-gray-500 py-2 px-3 hover:bg-gray-100 rounded-md mt-2'
                     >
-                      <svg
-                        className='w-4 h-4 mr-2'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                        />
-                      </svg>
+                      <Plus className='w-4 h-4 mr-2' size={16} />
                       Add task
                     </button>
                   )
@@ -718,19 +617,7 @@ function KanbanBoard() {
                 onClick={handleAddSection}
                 className='border border-dashed rounded-lg p-3 text-gray-500 hover:bg-gray-50 flex items-center justify-center'
               >
-                <svg
-                  className='w-4 h-4 mr-2'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                  />
-                </svg>
+                <Plus className='w-4 h-4 mr-2' size={16} />
                 Add section
               </button>
             )}
