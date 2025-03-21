@@ -1,425 +1,802 @@
-import React, { useState } from 'react';
-import { MoreHorizontal, Plus, X, Search, Bell } from 'lucide-react';
-import {
-  DndContext,
-  DragEndEvent,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { restrictToParentElement } from '@dnd-kit/modifiers';
+'use client';
 
-interface Task {
-  id: string;
-  title: string;
-  assignee: {
-    avatar: string;
-    date: string;
-  };
-  tag: {
-    name: string;
-    color: string;
-  };
-}
+import { useState, useRef, useEffect } from 'react';
+import './styles.css'; // For Tailwind CSS
 
-interface Column {
-  id: string;
-  title: string;
-  tasks: Task[];
-  color: string;
-}
+// Mock data for users
+const USERS = [
+  {
+    id: 1,
+    name: 'Alex',
+    initial: 'A',
+    image: 'https://i.pravatar.cc/150?img=1',
+  },
+  {
+    id: 2,
+    name: 'Beth',
+    initial: 'B',
+    image: 'https://i.pravatar.cc/150?img=2',
+  },
+  {
+    id: 3,
+    name: 'Carlos',
+    initial: 'C',
+    image: 'https://i.pravatar.cc/150?img=3',
+  },
+  {
+    id: 4,
+    name: 'Diana',
+    initial: 'D',
+    image: 'https://i.pravatar.cc/150?img=4',
+  },
+];
 
-function App() {
-  const [columns, setColumns] = useState<Column[]>([
+// Tags
+const TAGS = ['Design', 'Programming', 'Marketing', 'Research'];
+
+function KanbanBoard() {
+  // State for columns with initial dummy data
+  const [columns, setColumns] = useState([
     {
-      id: '1',
+      id: 'todo',
       title: 'To do',
       tasks: [],
-      color: 'bg-blue-50/80 backdrop-blur-sm',
     },
     {
-      id: '2',
+      id: 'in-progress',
       title: 'In Progress',
       tasks: [
         {
-          id: '1',
+          id: 'task-1',
           title: 'Add buttons',
-          assignee: {
-            avatar:
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop',
-            date: 'Yesterday',
-          },
-          tag: {
-            name: 'Programming',
-            color: 'text-gray-400',
-          },
+          description: '',
+          dueDate: '',
+          assignee: USERS[0],
+          tag: 'Programming',
+          date: 'Yesterday',
         },
         {
-          id: '2',
+          id: 'task-2',
           title: 'Logo revision',
-          assignee: {
-            avatar:
-              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
-            date: 'Tomorrow',
-          },
-          tag: {
-            name: 'Design',
-            color: 'text-gray-400',
-          },
+          description: '',
+          dueDate: '',
+          assignee: USERS[0],
+          tag: 'Design',
+          date: 'Tomorrow',
         },
       ],
-      color: 'bg-purple-50/80 backdrop-blur-sm',
     },
     {
-      id: '3',
+      id: 'review-1',
       title: 'Review',
       tasks: [
         {
-          id: '3',
+          id: 'task-3',
           title: 'Empty task',
-          assignee: {
-            avatar:
-              'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop',
-            date: 'Tomorrow',
-          },
-          tag: {
-            name: 'Design',
-            color: 'text-gray-400',
-          },
+          description: '',
+          dueDate: '',
+          assignee: null,
+          tag: null,
+          date: null,
         },
         {
-          id: '4',
+          id: 'task-4',
           title: 'UI-Kit',
-          assignee: {
-            avatar:
-              'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop',
-            date: 'Tomorrow',
-          },
-          tag: {
-            name: 'Design',
-            color: 'text-gray-400',
-          },
+          description: '',
+          dueDate: '',
+          assignee: USERS[1],
+          tag: 'Design',
+          date: 'Tomorrow',
+          flag: 'yellow',
+        },
+        {
+          id: 'task-5',
+          title: 'Managing',
+          description: '',
+          dueDate: '',
+          assignee: null,
+          tag: null,
+          date: null,
+        },
+        {
+          id: 'task-6',
+          title: 'Fixing bugs',
+          description: '',
+          dueDate: '',
+          assignee: USERS[2],
+          tag: 'Design',
+          date: 'Today',
+          flag: 'yellow',
+        },
+        {
+          id: 'task-7',
+          title: 'Design Concept 2',
+          description: '',
+          dueDate: '',
+          assignee: USERS[3],
+          tag: 'Design',
+          date: 'Today',
         },
       ],
-      color: 'bg-rose-50/80 backdrop-blur-sm',
+    },
+    {
+      id: 'review-2',
+      title: 'Review',
+      tasks: [
+        {
+          id: 'task-8',
+          title: 'Empty task',
+          description: '',
+          dueDate: '',
+          assignee: null,
+          tag: null,
+          date: null,
+        },
+        {
+          id: 'task-9',
+          title: 'Right text for modal',
+          description: '',
+          dueDate: '',
+          assignee: USERS[0],
+          tag: 'Design',
+          date: 'Tomorrow',
+        },
+        {
+          id: 'task-10',
+          title: 'UI-Kit',
+          description: '',
+          dueDate: '',
+          assignee: USERS[1],
+          tag: 'Design',
+          date: 'Today',
+        },
+        {
+          id: 'task-11',
+          title: 'Modal design fix',
+          description: '',
+          dueDate: '',
+          assignee: USERS[2],
+          tag: 'Programming',
+          date: 'Yesterday',
+        },
+        {
+          id: 'task-12',
+          title:
+            'Create and finalize the design of the admin panel and mobile app',
+          description: '',
+          dueDate: '',
+          assignee: USERS[3],
+          tag: 'Programming',
+          date: '12 Feb',
+        },
+      ],
     },
   ]);
 
-  const [addingTaskToColumn, setAddingTaskToColumn] = useState<string | null>(
-    null
-  );
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [showAddSection, setShowAddSection] = useState(false);
-  const [newSectionTitle, setNewSectionTitle] = useState('');
+  // State for tracking which column is adding a task
+  const [addingTaskInColumn, setAddingTaskInColumn] = useState(null);
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 10,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    })
-  );
+  // State for new task form
+  const [newTaskForm, setNewTaskForm] = useState({
+    title: '',
+    description: '',
+    dueDate: '',
+    assigneeId: '',
+    tag: '',
+  });
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+  // State for dropdown menu
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
-    const taskId = active.id as string;
-    const targetColumnId = over.id as string;
+  // State for adding a new section
+  const [addingSectionName, setAddingSectionName] = useState('');
+  const [isAddingSection, setIsAddingSection] = useState(false);
 
-    // Find the task and its current column
-    let sourceColumn: Column | undefined;
-    let task: Task | undefined;
+  // Refs
+  const newTaskInputRef = useRef(null);
+  const newSectionInputRef = useRef(null);
+  const dropdownRef = useRef(null);
 
-    for (const column of columns) {
-      const foundTask = column.tasks.find((t) => t.id === taskId);
-      if (foundTask) {
-        sourceColumn = column;
-        task = foundTask;
-        break;
+  // Handle outside click to close dropdowns
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdown(null);
       }
     }
 
-    if (!sourceColumn || !task) return;
-
-    // Remove task from source column and add to target column
-    setColumns(
-      columns.map((column) => {
-        if (column.id === sourceColumn?.id) {
-          return {
-            ...column,
-            tasks: column.tasks.filter((t) => t.id !== taskId),
-          };
-        }
-        if (column.id === targetColumnId) {
-          return {
-            ...column,
-            tasks: [...column.tasks, task!],
-          };
-        }
-        return column;
-      })
-    );
-  };
-
-  const handleAddTask = (columnId: string) => {
-    if (!newTaskTitle.trim()) return;
-
-    const newTask: Task = {
-      id: Math.random().toString(),
-      title: newTaskTitle,
-      assignee: {
-        avatar:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop',
-        date: 'Today',
-      },
-      tag: {
-        name: 'New',
-        color: 'text-gray-400',
-      },
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
 
-    setColumns(
-      columns.map((col) => {
-        if (col.id === columnId) {
-          return {
-            ...col,
-            tasks: [...col.tasks, newTask],
-          };
-        }
-        return col;
-      })
-    );
+  // Focus input when adding task
+  useEffect(() => {
+    if (addingTaskInColumn && newTaskInputRef.current) {
+      newTaskInputRef.current.focus();
+    }
+  }, [addingTaskInColumn]);
 
-    setNewTaskTitle('');
-    setAddingTaskToColumn(null);
+  // Focus input when adding section
+  useEffect(() => {
+    if (isAddingSection && newSectionInputRef.current) {
+      newSectionInputRef.current.focus();
+    }
+  }, [isAddingSection]);
+
+  // Handle adding a new task
+  const handleAddTask = (columnId) => {
+    if (addingTaskInColumn === columnId) {
+      // Submit the form if already adding to this column
+      if (newTaskForm.title.trim()) {
+        const updatedColumns = columns.map((column) => {
+          if (column.id === columnId) {
+            return {
+              ...column,
+              tasks: [
+                ...column.tasks,
+                {
+                  id: `task-${Date.now()}`,
+                  title: newTaskForm.title,
+                  description: newTaskForm.description,
+                  dueDate: newTaskForm.dueDate,
+                  assignee: newTaskForm.assigneeId
+                    ? USERS.find(
+                        (user) =>
+                          user.id === Number.parseInt(newTaskForm.assigneeId)
+                      )
+                    : null,
+                  tag: newTaskForm.tag,
+                  date: newTaskForm.dueDate
+                    ? new Date(newTaskForm.dueDate).toLocaleDateString()
+                    : null,
+                },
+              ],
+            };
+          }
+          return column;
+        });
+
+        setColumns(updatedColumns);
+        setNewTaskForm({
+          title: '',
+          description: '',
+          dueDate: '',
+          assigneeId: '',
+          tag: '',
+        });
+        setAddingTaskInColumn(null);
+      }
+    } else {
+      // Start adding to this column
+      setAddingTaskInColumn(columnId);
+    }
   };
 
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewTaskForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle cancel adding task
+  const handleCancelAddTask = () => {
+    setAddingTaskInColumn(null);
+    setNewTaskForm({
+      title: '',
+      description: '',
+      dueDate: '',
+      assigneeId: '',
+      tag: '',
+    });
+  };
+
+  // Handle adding a new section
   const handleAddSection = () => {
-    if (!newSectionTitle.trim()) return;
+    if (isAddingSection) {
+      if (addingSectionName.trim()) {
+        setColumns([
+          ...columns,
+          {
+            id: `section-${Date.now()}`,
+            title: addingSectionName,
+            tasks: [],
+          },
+        ]);
+        setAddingSectionName('');
+      }
+      setIsAddingSection(false);
+    } else {
+      setIsAddingSection(true);
+    }
+  };
 
-    const colors = [
-      'bg-emerald-50/80',
-      'bg-cyan-50/80',
-      'bg-fuchsia-50/80',
-      'bg-lime-50/80',
-    ];
+  // Handle delete task
+  const handleDeleteTask = (columnId, taskId) => {
+    const updatedColumns = columns.map((column) => {
+      if (column.id === columnId) {
+        return {
+          ...column,
+          tasks: column.tasks.filter((task) => task.id !== taskId),
+        };
+      }
+      return column;
+    });
 
-    const newSection: Column = {
-      id: Math.random().toString(),
-      title: newSectionTitle,
-      tasks: [],
-      color: colors[columns.length % colors.length] + ' backdrop-blur-sm',
-    };
+    setColumns(updatedColumns);
+    setActiveDropdown(null);
+  };
 
-    setColumns([...columns, newSection]);
-    setNewSectionTitle('');
-    setShowAddSection(false);
+  // Drag and drop handlers
+  const handleDragStart = (e, columnId, taskId) => {
+    e.dataTransfer.setData('columnId', columnId);
+    e.dataTransfer.setData('taskId', taskId);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, targetColumnId) => {
+    const sourceColumnId = e.dataTransfer.getData('columnId');
+    const taskId = e.dataTransfer.getData('taskId');
+
+    if (sourceColumnId === targetColumnId) return;
+
+    // Find the task in the source column
+    const sourceColumn = columns.find((col) => col.id === sourceColumnId);
+    const task = sourceColumn.tasks.find((t) => t.id === taskId);
+
+    // Remove from source column and add to target column
+    const updatedColumns = columns.map((column) => {
+      if (column.id === sourceColumnId) {
+        return {
+          ...column,
+          tasks: column.tasks.filter((t) => t.id !== taskId),
+        };
+      }
+      if (column.id === targetColumnId) {
+        return {
+          ...column,
+          tasks: [...column.tasks, task],
+        };
+      }
+      return column;
+    });
+
+    setColumns(updatedColumns);
+  };
+
+  // Helper function to render date with appropriate color
+  const renderDate = (date) => {
+    if (!date) return null;
+
+    let className = 'text-xs';
+    if (date === 'Yesterday') {
+      className += ' text-red-500';
+    } else if (date === 'Tomorrow') {
+      className += ' text-blue-500';
+    } else {
+      className += ' text-gray-500';
+    }
+
+    return <span className={className}>{date}</span>;
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-gray-100 to-gray-200'>
+    <div className='flex flex-col h-screen bg-white'>
       {/* Header */}
-      <div
-        className='w-full  bg-fuchsia-50/80 rounded-md border-b border-gray-200'
-        style={{ maxWidth: '94%', marginLeft: '3%' }}
-      >
-        <div className='max-w-[1800px] mx-auto px-4 py-2'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-4'>
-              <div className='w-8 h-8 bg-black rounded-lg flex items-center justify-center'>
-                <span className='text-white p-5 text-lg'>A</span>
-              </div>
-              <div>
-                <h1 className='text-sm font-medium'>Apple</h1>
-                <p className='text-xs text-gray-500'>5 boards · 24 members</p>
-              </div>
+      <header className='flex items-center justify-between px-4 py-3 border-b'>
+        <div className='flex items-center gap-4'>
+          <button className='p-2 rounded-full hover:bg-gray-100'>
+            <svg
+              className='w-5 h-5'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M15 19l-7-7 7-7'
+              />
+            </svg>
+          </button>
+          <div className='flex items-center gap-3'>
+            <div className='flex items-center justify-center w-8 h-8 bg-black rounded-lg'>
+              <svg
+                className='w-5 h-5 text-white'
+                viewBox='0 0 16 20'
+                fill='currentColor'
+              >
+                <path d='M11.03 10.434c-.02-2.035 1.666-3.026 1.743-3.073-95-.141-1.84-.821-1.83-1.628-.043-1.012.37-1.99 1.121-2.651-1.098-1.61.166-4.102 2.39-5.179 1.423-.688 3.115-.363 4.107.494 1.03.818 1.8 2.142 1.592 3.388 1.246.087 2.483-.318 3.426-1.054.389.739.695 1.554.905 2.416-1.04.468-1.957 1.157-2.682 2.015.013 1.908-1.677 4.164-4.286 4.164-1.059.006-2.07-.431-2.868-1.2-1.055.257-2.16.32-3.248.185.25-1.054.76-2.006 1.48-2.763-1.2-.857-1.928-2.285-1.928-3.846 0-2.813 2.279-4.998 5.092-4.998 1.413-.012 2.774.56 3.77 1.575 1.237-.577 2.605-.876 3.992-.87 1.383.006 2.75.305 3.98.87-.998-1.012-2.358-1.584-3.77-1.575-2.813 0-5.092 2.185-5.092 4.998 0 1.56.728 2.989 1.928 3.846-.72.757-1.23 1.71-1.48 2.763 1.088.135 2.193.072 3.248-.185.798.769 1.809 1.206 2.868 1.2 2.609 0 4.299-2.256 4.286-4.164.725-.858 1.642-1.547 2.682-2.015-.21-.862-.516-1.677-.905-2.416-.943.736-2.18 1.141-3.426 1.054.208-1.246-.562-2.57-1.592-3.388-.992-.857-2.684-1.182-4.107-.494-2.224 1.077-3.488 3.569-2.39 5.179-.751.661-1.164 1.639-1.121 2.651-.01.807.735 1.487 1.83 1.628-.077.047-1.763 1.038-1.743 3.073-.02 1.046.85 1.86 1.848 1.86 1.177 0 1.698-.85 3.168-.85 1.47 0 1.99.85 3.168.85.998 0 1.868-.814 1.848-1.86z' />
+              </svg>
             </div>
-            <div className='flex items-center space-x-1'>
-              <div className='relative'>
-                <Search className='w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' />
-                <input
-                  type='text'
-                  placeholder='Search...'
-                  className='pl-9 pr-4 py-1.5 text-sm bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-colors'
-                />
-              </div>
-              <button className='p-1.5 hover:bg-gray-100 rounded-md'>
-                <Bell className='w-5 h-5 text-gray-600' />
-              </button>
+            <div>
+              <h1 className='text-base font-semibold'>Apple</h1>
+              <p className='text-xs text-gray-500'>5 boards · 24 members</p>
             </div>
           </div>
         </div>
-      </div>
+        <div className='flex items-center gap-2'>
+          <button className='p-2 rounded-full hover:bg-gray-100'>
+            <svg
+              className='w-5 h-5'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+              />
+            </svg>
+          </button>
+          <button className='p-2 rounded-full hover:bg-gray-100'>
+            <svg
+              className='w-5 h-5'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+            >
+              <path d='M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8m4-9-4 4 4 4m-4-4h8' />
+            </svg>
+          </button>
+          <button className='p-2 rounded-full hover:bg-gray-100'>
+            <svg
+              className='w-5 h-5'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
+              />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
 
-      {/* Main Content */}
-      <div className='p-4 md:p-8'>
-        <DndContext
-          sensors={sensors}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToParentElement]}
-        >
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'>
-            {columns.map((column, index) => (
-              <div
-                key={column.id}
-                id={column.id}
-                className={`${
-                  column.color
-                } rounded-lg p-4 shadow-sm border border-white/20 ${
-                  index === 0 ? 'w-full' : 'w-full'
-                }`}
-              >
-                <div className='flex items-center justify-between mb-4'>
-                  <h2 className='text-sm font-medium text-gray-700'>
-                    {column.title}
-                  </h2>
-                  <div className='flex items-center gap-1'>
-                    <button
-                      className='p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-white/30'
-                      onClick={() => setAddingTaskToColumn(column.id)}
+      {/* Board */}
+      <div className='flex-1 overflow-x-auto'>
+        <div className='flex h-full min-w-max p-4 gap-4'>
+          {columns.map((column) => (
+            <div
+              key={column.id}
+              className='flex flex-col w-72 min-h-full'
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, column.id)}
+            >
+              <div className='flex items-center justify-between mb-3'>
+                <h2 className='text-sm font-medium'>{column.title}</h2>
+                <div className='flex items-center gap-1'>
+                  <button
+                    className='p-1 rounded hover:bg-gray-100'
+                    onClick={() => handleAddTask(column.id)}
+                  >
+                    <svg
+                      className='w-4 h-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
                     >
-                      <Plus className='w-4 h-4' />
-                    </button>
-                    <button className='p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-white/30'>
-                      <MoreHorizontal className='w-4 h-4' />
-                    </button>
-                  </div>
-                </div>
-
-                <div className='space-y-3'>
-                  {addingTaskToColumn === column.id && (
-                    <div className='bg-white/80 backdrop-blur-sm rounded-lg p-3 shadow-sm'>
-                      <input
-                        type='text'
-                        value={newTaskTitle}
-                        onChange={(e) => setNewTaskTitle(e.target.value)}
-                        placeholder='Enter task title...'
-                        className='w-full p-2 border rounded-md mb-2 bg-white'
-                        onKeyPress={(e) =>
-                          e.key === 'Enter' && handleAddTask(column.id)
-                        }
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M12 6v6m0 0v6m0-6h6m-6 0H6'
                       />
-                      <div className='flex justify-end gap-2'>
-                        <button
-                          onClick={() => setAddingTaskToColumn(null)}
-                          className='px-3 py-1 text-sm text-gray-600 hover:text-gray-800'
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => handleAddTask(column.id)}
-                          className='px-3 py-1 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600'
-                        >
-                          Add
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {column.tasks.map((task) => (
-                    <div
-                      key={task.id}
-                      draggable
-                      className='bg-white/80 backdrop-blur-sm rounded-lg p-3 space-y-3 shadow-sm hover:shadow-md transition-shadow cursor-move'
+                    </svg>
+                  </button>
+                  <button className='p-1 rounded hover:bg-gray-100'>
+                    <svg
+                      className='w-4 h-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
                     >
-                      <div className='flex items-center justify-between'>
-                        <h3 className='text-sm font-medium text-gray-900'>
-                          {task.title}
-                        </h3>
-                      </div>
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <img
-                            src={task.assignee.avatar}
-                            alt='Avatar'
-                            className='w-6 h-6 rounded-full'
-                          />
-                          <span
-                            className={`text-xs ${
-                              task.assignee.date.toLowerCase() === 'yesterday'
-                                ? 'text-red-500'
-                                : 'text-blue-500'
-                            }`}
-                          >
-                            {task.assignee.date}
-                          </span>
-                        </div>
-                        <span className='text-xs bg-white/50 px-2 py-1 rounded-full'>
-                          {task.tag.name}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-
-                  {column.tasks.length === 0 && !addingTaskToColumn && (
-                    <button
-                      className='w-full py-4 text-sm text-gray-400 hover:text-gray-600 hover:bg-white/30 rounded-lg transition-colors'
-                      onClick={() => setAddingTaskToColumn(column.id)}
-                    >
-                      + Add task
-                    </button>
-                  )}
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
+                      />
+                    </svg>
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </DndContext>
-      </div>
+              <div className='flex-1 bg-gray-50 rounded-lg p-2'>
+                {/* Add task form */}
+                {addingTaskInColumn === column.id && (
+                  <div className='bg-white rounded-lg shadow-sm mb-2 p-3'>
+                    <input
+                      ref={newTaskInputRef}
+                      type='text'
+                      name='title'
+                      value={newTaskForm.title}
+                      onChange={handleInputChange}
+                      placeholder='Task title'
+                      className='w-full mb-2 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
+                    />
+                    <textarea
+                      name='description'
+                      value={newTaskForm.description}
+                      onChange={handleInputChange}
+                      placeholder='Description'
+                      className='w-full mb-2 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      rows='2'
+                    ></textarea>
+                    <div className='flex gap-2 mb-2'>
+                      <input
+                        type='date'
+                        name='dueDate'
+                        value={newTaskForm.dueDate}
+                        onChange={handleInputChange}
+                        className='flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                      <select
+                        name='assigneeId'
+                        value={newTaskForm.assigneeId}
+                        onChange={handleInputChange}
+                        className='flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      >
+                        <option value=''>Select assignee</option>
+                        {USERS.map((user) => (
+                          <option key={user.id} value={user.id}>
+                            {user.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <select
+                      name='tag'
+                      value={newTaskForm.tag}
+                      onChange={handleInputChange}
+                      className='w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
+                    >
+                      <option value=''>Select tag</option>
+                      {TAGS.map((tag) => (
+                        <option key={tag} value={tag}>
+                          {tag}
+                        </option>
+                      ))}
+                    </select>
+                    <div className='flex justify-end gap-2'>
+                      <button
+                        onClick={handleCancelAddTask}
+                        className='px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded'
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleAddTask(column.id)}
+                        className='px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600'
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-      <button
-        onClick={() => setShowAddSection(true)}
-        className='fixed bottom-6 right-6 bg-purple-500 text-white p-3 rounded-full shadow-lg hover:bg-purple-600 transition-colors'
-      >
-        <Plus className='w-6 h-6' />
-      </button>
+                {/* Tasks */}
+                {column.tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className='bg-white rounded-lg shadow-sm mb-2 p-3 relative cursor-move'
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, column.id, task.id)}
+                  >
+                    {task.flag && (
+                      <div className='absolute right-3 top-3 w-2 h-2 rounded-full bg-yellow-400' />
+                    )}
+                    <div className='relative'>
+                      <h3 className='text-sm font-medium mb-1 pr-6'>
+                        {task.title}
+                      </h3>
+                      <div className='absolute top-0 right-0'>
+                        <button
+                          className='p-1 rounded hover:bg-gray-100'
+                          onClick={() =>
+                            setActiveDropdown(
+                              task.id === activeDropdown ? null : task.id
+                            )
+                          }
+                        >
+                          <svg
+                            className='w-4 h-4'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth='2'
+                              d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
+                            />
+                          </svg>
+                        </button>
 
-      {showAddSection && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4'>
-          <div className='bg-white rounded-lg p-6 w-full max-w-sm'>
-            <div className='flex justify-between items-center mb-4'>
-              <h3 className='text-lg font-medium'>Add New Section</h3>
-              <button
-                onClick={() => setShowAddSection(false)}
-                className='text-gray-400 hover:text-gray-600'
-              >
-                <X className='w-5 h-5' />
-              </button>
+                        {/* Dropdown menu */}
+                        {activeDropdown === task.id && (
+                          <div
+                            ref={dropdownRef}
+                            className='absolute right-0 mt-1 w-36 bg-white rounded-md shadow-lg z-10 border'
+                          >
+                            <button
+                              className='w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100'
+                              onClick={() =>
+                                handleDeleteTask(column.id, task.id)
+                              }
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {task.description && (
+                      <p className='text-xs text-gray-600 mb-2'>
+                        {task.description}
+                      </p>
+                    )}
+
+                    {(task.assignee || task.date || task.tag) && (
+                      <div className='flex items-center justify-between mt-2'>
+                        {task.assignee && (
+                          <div className='flex items-center'>
+                            <div className='w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden'>
+                              {task.assignee.image ? (
+                                <img
+                                  src={
+                                    task.assignee.image || '/placeholder.svg'
+                                  }
+                                  alt={task.assignee.name}
+                                  className='w-full h-full object-cover'
+                                />
+                              ) : (
+                                <span className='text-xs font-medium'>
+                                  {task.assignee.initial}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className='flex items-center gap-2'>
+                          {task.date && renderDate(task.date)}
+                          {task.tag && (
+                            <span className='text-xs text-gray-500'>
+                              {task.tag}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add task button when no tasks or after existing tasks */}
+                {column.tasks.length === 0 &&
+                addingTaskInColumn !== column.id ? (
+                  <button
+                    onClick={() => handleAddTask(column.id)}
+                    className='w-full flex items-center justify-center text-gray-500 py-2 px-3 hover:bg-gray-100 rounded-md'
+                  >
+                    <svg
+                      className='w-4 h-4 mr-2'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                      />
+                    </svg>
+                    Add task
+                  </button>
+                ) : (
+                  column.tasks.length > 0 &&
+                  addingTaskInColumn !== column.id && (
+                    <button
+                      onClick={() => handleAddTask(column.id)}
+                      className='w-full flex items-center justify-center text-gray-500 py-2 px-3 hover:bg-gray-100 rounded-md mt-2'
+                    >
+                      <svg
+                        className='w-4 h-4 mr-2'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth='2'
+                          d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                        />
+                      </svg>
+                      Add task
+                    </button>
+                  )
+                )}
+              </div>
             </div>
-            <input
-              type='text'
-              value={newSectionTitle}
-              onChange={(e) => setNewSectionTitle(e.target.value)}
-              placeholder='Enter section title...'
-              className='w-full p-2 border rounded-md mb-4'
-              onKeyPress={(e) => e.key === 'Enter' && handleAddSection()}
-            />
-            <div className='flex justify-end gap-2'>
-              <button
-                onClick={() => setShowAddSection(false)}
-                className='px-4 py-2 text-sm text-gray-600 hover:text-gray-800'
-              >
-                Cancel
-              </button>
+          ))}
+
+          {/* Add section */}
+          <div className='flex flex-col w-72 min-h-full'>
+            {isAddingSection ? (
+              <div className='bg-white rounded-lg border p-3'>
+                <input
+                  ref={newSectionInputRef}
+                  type='text'
+                  value={addingSectionName}
+                  onChange={(e) => setAddingSectionName(e.target.value)}
+                  placeholder='Section name'
+                  className='w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
+                />
+                <div className='flex justify-end gap-2'>
+                  <button
+                    onClick={() => setIsAddingSection(false)}
+                    className='px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded'
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddSection}
+                    className='px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600'
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            ) : (
               <button
                 onClick={handleAddSection}
-                className='px-4 py-2 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600'
+                className='border border-dashed rounded-lg p-3 text-gray-500 hover:bg-gray-50 flex items-center justify-center'
               >
-                Add Section
+                <svg
+                  className='w-4 h-4 mr-2'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                  />
+                </svg>
+                Add section
               </button>
-            </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-export default App;
+export default KanbanBoard;
