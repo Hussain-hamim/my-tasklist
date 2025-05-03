@@ -356,7 +356,7 @@ function KanbanBoard() {
               <span style={{ color: 'white' }}>Z</span>
             </div>
             <div>
-              <h1 className='text-base font-semibold'>Zareen</h1>
+              <h1 className='text-base font-semibold'>Hussain</h1>
               <p className='text-xs text-gray-500'>5 boards · 24 members</p>
             </div>
           </div>
